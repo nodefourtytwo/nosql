@@ -438,6 +438,29 @@ Database.prototype.$$top = function(max, fnMap) {
 };
 
 /*
+	Read BOTTOM "x" documents from database
+	@fnMap {Function} :: IMPORTANT: you must return {Object}
+	@fnCallback {Function} :: params: @doc {Array of Object}
+	return {Database}
+*/
+Database.prototype.bottom = function(max, fnMap, fnCallback) {
+	var self=this;
+	this.count( function(doc){
+		return doc;
+	}, function(err, count){
+		var skip = count - max > 0 ? count - max : 0;
+		return self.read(fnMap, fnCallback, skip, max, false, 'top');
+	});
+};
+
+Database.prototype.$$bottom = function(max, fnMap) {
+	var self = this;
+	return function(callback) {
+		return self.bottom(max, fnMap, callback);
+	};
+};
+
+/*
 	Count documents
 	@fnFilter {Function} :: params: @doc {Object}, IMPORTANT: you must return {Boolean}
 	@fnCallback {Function} :: params: @count {Number}
